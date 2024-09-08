@@ -54,6 +54,38 @@ def analyze_sentiment():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/sum", methods=["POST"])
+def summary():
+    try:
+        # Extract the OpenAI API key and the text to analyze from the POST request
+
+        text = request.json.get("text")
+
+        # Set the OpenAI API key
+        # openai.api_key = os.getenv("OPENAI_API_KEY")
+        openai.api_key = "***" # api key
+
+        # Make a request to the OpenAI GPT-3.5 API
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0125",
+            messages=[
+                {
+                    "role": "system",
+                    # prompt
+                    "content": "Analyze the following news article and tell me it's category",
+                },
+                {"role": "user", "content": text},
+            ],
+        )
+
+        # Extract the sentiment from the response
+        sum_response = response["choices"][0]["message"]["content"].strip()
+
+
+        return jsonify({"summary": sum_response})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
